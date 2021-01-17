@@ -9,7 +9,7 @@ import youtube_dl
 import ffmpeg
 
 
-__version__ = '0.6.0'
+__version__ = '0.6.3'
 
 
 # TODO: command-line argument support
@@ -82,8 +82,7 @@ def download(vods_list):
         'progress_hooks': [speed_up],
     }
     if not prefer_1080p:
-        # TODO: accept 1080p if lower is not available
-        ydl_args['format'] = 'best[height<=720]'
+        ydl_args['format'] = 'best[height<=720]/best'
 
     try:
         with youtube_dl.YoutubeDL(ydl_args) as ydl:
