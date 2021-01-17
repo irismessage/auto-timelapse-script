@@ -1,6 +1,6 @@
 # auto_timelapse_script
 
-Script for automatically downloading a list of videos, speeding them up, and concatanating them.
+Script for automatically downloading a list of videos, speeding them up, and concatenating them.
 Uses multithreading with youtube_dl and ffmpeg-python to download and speed up a list of videos all at once. Then, it uses ffmpeg to combine them all into one timelapse.
 
 Made for https://www.twitch.tv/controlmypc
