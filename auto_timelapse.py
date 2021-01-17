@@ -4,7 +4,7 @@ import os
 import sys
 
 import youtube_dl
-# import ffmpeg
+import ffmpeg
 
 # TODO: command-line argument support
 # TODO: - vod urls as a list of arguments
@@ -58,20 +58,27 @@ def vods_list_from_file(path=vods_list_file_path):
 def download(vods_list):
     ydl_args = {
         'outtmpl': f'/{out_folder}/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
-        'prefer_ffmpeg': True,
-        # Specifying format is required for video filters to work, as streamcopy is used otherwise.
-        'format': 'mp4',
-        # Note: args must be given as args_str.split(). This was hard to find for some reason.
-        # Note 2: the video codec is given to override the codec copy option given by youtube-dl and thus
-        #         allow filtering. I couldn't find a better way to do this other than handling filtering
-        #         separately, which seemed less elegant.
-        'postprocessor_args': ['-c:v', 'mpeg4', '-an', '-filter:v', f'"setpts=(1/{speed})*PTS"'],
+        'progress_hooks': [speed_up],
     }
     if not prefer_1080p:
         ydl_args['format'] = 'best[height=720]'
 
     with youtube_dl.YoutubeDL(ydl_args) as ydl:
         ydl.download(vods_list)
+
+
+def speed_up(video_download):
+    if not video_download['status'] == 'finished':
+        return
+    filename, file_extension = os.path.splitext(video_download['filename'])
+    filename_no_extension = video_download['filename'][:-len(file_extension)]
+
+    stream = ffmpeg.input(video_download['filename'])
+    stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
+    stream = ffmpeg.output(stream, f"{filename_no_extension}-{speed}x{file_extension}")
+    ffmpeg.run(stream)
+
+    os.remove(video_download['filename'])
 
 
 def main():
