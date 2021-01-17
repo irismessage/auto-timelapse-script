@@ -28,7 +28,7 @@ speed = 1000
 # TODO: make sure you change this default!
 clear_out_folder = True
 output_timelapse_filename = '_timelapse.mp4'
-keep_timelapse_parts = False
+keep_timelapse_parts = True
 
 
 def out_folder_empty(overwrite=clear_out_folder):
@@ -89,10 +89,10 @@ def speed_up(video_download):
 
 def combine_videos_in(folder=out_folder):
     videos = os.listdir(folder)
-    parts_file_path = os.path.join(folder, 'parts.txt')
+    parts_file_path = os.path.join(folder, '_parts.txt')
 
-    with open(parts_file_path, 'w') as parts_file:
-        parts_file.writelines([f'{os.path.join(folder, video)}\n' for video in videos])
+    with open(parts_file_path, 'w', encoding='utf-8') as parts_file:
+        parts_file.writelines([f"file '{os.path.join(folder, video)}'\n" for video in videos])
 
     # Note: seems to be a bug in ffmpeg-python that this doesn't work right now.
     # stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
