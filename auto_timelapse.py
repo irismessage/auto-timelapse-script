@@ -92,9 +92,14 @@ def combine_videos_in(folder=out_folder):
     with open(parts_file_path, 'w') as parts_file:
         parts_file.writelines(videos)
 
-    stream = ffmpeg.input(parts_file_path, format='concat')
-    stream = ffmpeg.output(stream, os.path.join(folder, output_timelapse_filename), c='copy')
-    ffmpeg.run(stream)
+    # Note: seems to be a bug in ffmpeg-python that this doesn't work right now.
+    # stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
+    # stream = ffmpeg.output(stream, os.path.join(folder, output_timelapse_filename), c='copy')
+    # ffmpeg.run(stream)
+
+    # Let's do it manually instead
+    out_file_path = os.path.join(folder, output_timelapse_filename)
+    os.system(f'ffmpeg -f concat -safe 0 -i {parts_file_path} -c copy {out_file_path}')
 
     os.remove(parts_file_path)
     for video in videos:
