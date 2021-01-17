@@ -30,8 +30,10 @@ def vods_list_from_file(path=vods_list_file_path):
 
 def download(vods_list):
     ydl_args = {
-        'outtmpl': f'/downloads/{YOUTUBE_DL_DEFAULT_OUTTMPL}'
+        'outtmpl': f'/downloads/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
     }
+    if not prefer_1080p:
+        ydl_args['format'] = 'best[height=720]'
 
     with youtube_dl.YoutubeDL(ydl_args) as ydl:
         ydl.download(vods_list)
