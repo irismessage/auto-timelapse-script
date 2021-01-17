@@ -1,8 +1,14 @@
 import setuptools
 
+
+# To run: python setup.py sdist bdist_wheel
+# To upload: python -m twine upload (--repository testpypi) dist/*
+
+
 with open("README.md", "r", encoding="utf-8") as readme_file:
     long_description = readme_file.read()
 
+# TODO: test distribution and put on real pypi
 setuptools.setup(
     name="cmpc-timelapse",
     version="0.6.3",
@@ -23,7 +29,6 @@ setuptools.setup(
     # TODO: figure out bounds for requirements?
     install_requires=[
         'ffmpeg-python',
-        'future',
-        'youtube-dl'
+        'youtube-dl',
     ]
 )
