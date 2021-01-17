@@ -11,7 +11,7 @@ with open("README.md", "r", encoding="utf-8") as readme_file:
 # TODO: test distribution and put on real pypi
 setuptools.setup(
     name="cmpc-timelapse",
-    version="0.6.3",
+    version="0.6.4",
     author="Joel McBride",
     author_email="joel.mcbride1@live.com",
     description="Script for automatically downloading a list of videos, speeding them up, and concatenating them.",
