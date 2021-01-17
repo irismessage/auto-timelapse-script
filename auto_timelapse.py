@@ -90,7 +90,7 @@ def combine_videos_in(folder=out_folder):
     parts_file_path = os.path.join(folder, 'parts')
 
     with open(parts_file_path, 'w') as parts_file:
-        parts_file.writelines([f'{video}\n' for video in videos])
+        parts_file.writelines([f'{os.path.join(folder, video)}\n' for video in videos])
 
     # Note: seems to be a bug in ffmpeg-python that this doesn't work right now.
     # stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
