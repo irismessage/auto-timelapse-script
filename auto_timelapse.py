@@ -20,9 +20,9 @@ __version__ = '0.6.0'
 # TODO: - option for how much to speed up video
 # TODO: - option to keep audio in timelapse?
 # TODO: - option to turn off logging for youtube_dl and ffmpeg
-# TODO: once I add threading, check that all vod urls in input are unique to avoid conflicts
 # TODO: handle vod list input through input() after running
 # TODO: upload to pypi when done :)
+# TODO: docstrings
 
 
 YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
@@ -53,6 +53,17 @@ def out_folder_empty(overwrite=clear_out_folder):
             return not out_folder_contents
 
 
+def remove_duplicates(videos):
+    seen = set()
+    unique_videos = []
+    for video in videos:
+        if video not in seen:
+            unique_videos.append(video)
+            seen.add(video)
+
+    return unique_videos
+
+
 def vods_list_from_file(path=vods_list_file_path):
     try:
         with open(path, 'r') as vods_list_file:
@@ -61,6 +72,7 @@ def vods_list_from_file(path=vods_list_file_path):
         print(f"List of VODs to download '{path}' not found.")
         sys.exit()
     else:
+        vods_list = remove_duplicates(vods_list)
         return vods_list
 
 
