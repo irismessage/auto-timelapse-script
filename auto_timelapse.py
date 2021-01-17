@@ -27,7 +27,8 @@ prefer_1080p = False
 speed = 1000
 # TODO: make sure you change this default!
 clear_out_folder = True
-output_timelapse_filename = 'timelapse.mp4'
+output_timelapse_filename = '_timelapse.mp4'
+keep_timelapse_parts = False
 
 
 def out_folder_empty(overwrite=clear_out_folder):
@@ -67,7 +68,7 @@ def download(vods_list):
     try:
         with youtube_dl.YoutubeDL(ydl_args) as ydl:
             ydl.download(vods_list)
-    except youtube_dl.utils.DownloadError:
+    except youtube_dl.utils.DownloadError as error:
         # TODO: get invalid URL from error details and print it
         print('Invalid video URL, skipping.')
 
@@ -88,7 +89,7 @@ def speed_up(video_download):
 
 def combine_videos_in(folder=out_folder):
     videos = os.listdir(folder)
-    parts_file_path = os.path.join(folder, 'parts')
+    parts_file_path = os.path.join(folder, 'parts.txt')
 
     with open(parts_file_path, 'w') as parts_file:
         parts_file.writelines([f'{os.path.join(folder, video)}\n' for video in videos])
@@ -104,9 +105,10 @@ def combine_videos_in(folder=out_folder):
     out_file_path = os.path.join(folder, output_timelapse_filename)
     os.system(f'ffmpeg -f concat -safe 0 -i {parts_file_path} -c copy {out_file_path}')
 
-    os.remove(parts_file_path)
-    for video in videos:
-        os.remove(os.path.join(folder, video))
+    if not keep_timelapse_parts:
+        os.remove(parts_file_path)
+        for video in videos:
+            os.remove(os.path.join(folder, video))
 
 
 def main():
@@ -115,9 +117,10 @@ def main():
         sys.exit()
 
     vods_list = vods_list_from_file()
-    # download(vods_list)
+    print('Downloading and speeding up videos now with multithreading. You may see strange overlapping outputs.')
     with concurrent.futures.ThreadPoolExecutor() as threads:
-        threads.map(download, vods_list)
+        threads.map(download, [[vod] for vod in vods_list])
+    print('Downloading finished, combining videos.')
     combine_videos_in(out_folder)
 
     print('Done.')
