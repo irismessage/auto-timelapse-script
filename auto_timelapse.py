@@ -1,11 +1,16 @@
 #!usr/env/bin python
 
+import re
 import os
 import sys
 import concurrent.futures
 
 import youtube_dl
 import ffmpeg
+
+
+__version__ = '0.6.0'
+
 
 # TODO: command-line argument support
 # TODO: - vod urls as a list of arguments
@@ -14,6 +19,7 @@ import ffmpeg
 # TODO: - option to overwrite output folder
 # TODO: - option for how much to speed up video
 # TODO: - option to keep audio in timelapse?
+# TODO: - option to turn off logging for youtube_dl and ffmpeg
 # TODO: once I add threading, check that all vod urls in input are unique to avoid conflicts
 # TODO: handle vod list input through input() after running
 # TODO: upload to pypi when done :)
@@ -25,9 +31,10 @@ vods_list_file_path = 'vods.txt'
 out_folder = 'downloads'
 prefer_1080p = False
 speed = 1000
-# TODO: make sure you change this default!
-clear_out_folder = True
+clear_out_folder = False
 output_timelapse_filename = '_timelapse.mp4'
+# TODO: make this option work
+# keep_full_length_versions = False
 keep_timelapse_parts = True
 
 
@@ -63,14 +70,18 @@ def download(vods_list):
         'progress_hooks': [speed_up],
     }
     if not prefer_1080p:
+        # TODO: accept 1080p if lower is not available
         ydl_args['format'] = 'best[height<=720]'
 
     try:
         with youtube_dl.YoutubeDL(ydl_args) as ydl:
             ydl.download(vods_list)
     except youtube_dl.utils.DownloadError as error:
-        # TODO: get invalid URL from error details and print it
-        print('Invalid video URL, skipping.')
+        invalid_url = 'unknown'
+        re_match = re.match(r"ERROR: '(.*)' is not a valid URL\.", error.args[0])
+        if re_match:
+            invalid_url = re_match.group(1)
+        print(f'Invalid video URL, skipping. Invalid URL: {invalid_url}')
 
 
 def speed_up(video_download):
@@ -106,7 +117,7 @@ def combine_videos_in(folder=out_folder):
 
 def main():
     if not out_folder_empty():
-        print(f'The output folder {out_folder} contains files, please clear it.')
+        print(f"The output folder '{out_folder}' contains files, please clear it or change the output folder.")
         sys.exit()
 
     vods_list = vods_list_from_file()
