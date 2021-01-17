@@ -61,7 +61,7 @@ def download(vods_list):
         'progress_hooks': [speed_up],
     }
     if not prefer_1080p:
-        ydl_args['format'] = 'best[height=720]'
+        ydl_args['format'] = 'best[height<=720]'
 
     try:
         with youtube_dl.YoutubeDL(ydl_args) as ydl:
@@ -90,13 +90,12 @@ def combine_videos_in(folder=out_folder):
 
     streams = []
     for video in videos:
-        streams.append(ffmpeg.input(video))
-    stream = ffmpeg.concat(*streams)
-    stream = ffmpeg.output(stream, output_timelapse_filename)
+        streams.append(ffmpeg.input(os.path.join(folder, video)))
+    stream = ffmpeg.output(*streams, os.path.join(folder, output_timelapse_filename), c='copy')
     ffmpeg.run(stream)
 
     for video in videos:
-        os.remove(video)
+        os.remove(os.path.join(folder, video))
 
 
 def main():
