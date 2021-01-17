@@ -20,4 +20,10 @@ setuptools.setup(
         "Environment :: Console",
     ],
     python_requires='>=3',
+    # TODO: figure out bounds for requirements?
+    install_requires=[
+        'ffmpeg-python',
+        'future',
+        'youtube-dl'
+    ]
 )
