@@ -15,7 +15,6 @@ import ffmpeg
 # TODO: - option to keep audio in timelapse?
 # TODO: once I add threading, check that all vod urls in input are unique to avoid conflicts
 # TODO: handle vod list input through input() after running
-# TODO: handle invalid URL errors
 # TODO: upload to pypi when done :)
 
 
@@ -64,8 +63,12 @@ def download(vods_list):
     if not prefer_1080p:
         ydl_args['format'] = 'best[height=720]'
 
-    with youtube_dl.YoutubeDL(ydl_args) as ydl:
-        ydl.download(vods_list)
+    try:
+        with youtube_dl.YoutubeDL(ydl_args) as ydl:
+            ydl.download(vods_list)
+    except youtube_dl.utils.DownloadError:
+        # TODO: get invalid URL from error details and print it
+        print('Invalid video URL, skipping.')
 
 
 def speed_up(video_download):
