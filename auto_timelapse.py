@@ -2,6 +2,7 @@
 
 import os
 import sys
+import concurrent.futures
 
 import youtube_dl
 import ffmpeg
@@ -114,7 +115,9 @@ def main():
         sys.exit()
 
     vods_list = vods_list_from_file()
-    download(vods_list)
+    # download(vods_list)
+    with concurrent.futures.ThreadPoolExecutor() as threads:
+        threads.map(download, vods_list)
     combine_videos_in(out_folder)
 
     print('Done.')
