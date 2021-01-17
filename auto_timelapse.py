@@ -87,13 +87,16 @@ def speed_up(video_download):
 
 def combine_videos_in(folder=out_folder):
     videos = os.listdir(folder)
+    parts_file_path = os.path.join(folder, 'parts')
 
-    streams = []
-    for video in videos:
-        streams.append(ffmpeg.input(os.path.join(folder, video)))
-    stream = ffmpeg.output(*streams, os.path.join(folder, output_timelapse_filename), c='copy')
+    with open(parts_file_path, 'w') as parts_file:
+        parts_file.writelines(videos)
+
+    stream = ffmpeg.input(parts_file_path, format='concat')
+    stream = ffmpeg.output(stream, os.path.join(folder, output_timelapse_filename), c='copy')
     ffmpeg.run(stream)
 
+    os.remove(parts_file_path)
     for video in videos:
         os.remove(os.path.join(folder, video))
 
