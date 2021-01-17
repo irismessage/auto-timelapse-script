@@ -5,10 +5,11 @@ import os
 import sys
 import concurrent.futures
 
-import youtube_dl
+import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
+# Note: don't remember to update setup.py and maybe create a new GitHub release when you bump this!
 __version__ = '0.6.3'
 
 
@@ -85,9 +86,9 @@ def download(vods_list):
         ydl_args['format'] = 'best[height<=720]/best'
 
     try:
-        with youtube_dl.YoutubeDL(ydl_args) as ydl:
+        with youtube_yl.YoutubeDL(ydl_args) as ydl:
             ydl.download(vods_list)
-    except youtube_dl.utils.DownloadError as error:
+    except youtube_yl.utils.DownloadError as error:
         invalid_url = 'unknown'
         re_match = re.match(r"ERROR: '(.*)' is not a valid URL\.", error.args[0])
         if re_match:
