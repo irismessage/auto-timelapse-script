@@ -27,6 +27,7 @@ prefer_1080p = False
 speed = 1000
 # TODO: make sure you change this default!
 clear_out_folder = True
+output_timelapse_filename = 'timelapse.mp4'
 
 
 def out_folder_empty(overwrite=clear_out_folder):
@@ -81,6 +82,20 @@ def speed_up(video_download):
     os.remove(video_download['filename'])
 
 
+def combine_videos_in(folder=out_folder):
+    videos = os.listdir(folder)
+
+    streams = []
+    for video in videos:
+        streams.append(ffmpeg.input(video))
+    stream = ffmpeg.concat(*streams)
+    stream = ffmpeg.output(stream, output_timelapse_filename)
+    ffmpeg.run(stream)
+
+    for video in videos:
+        os.remove(video)
+
+
 def main():
     if not out_folder_empty():
         print(f'The output folder {out_folder} contains files, please clear it.')
@@ -88,6 +103,9 @@ def main():
 
     vods_list = vods_list_from_file()
     download(vods_list)
+    combine_videos_in(out_folder)
+
+    print('Done.')
 
 
 if __name__ == '__main__':
