@@ -2,7 +2,7 @@ import setuptools
 
 
 # To run: python setup.py sdist bdist_wheel
-# To upload: python -m twine upload (--repository testpypi) dist/*
+# To upload: python -m twine upload --sign --skip-existing (--repository testpypi) dist/*
 
 
 with open('README.md', 'r', encoding='utf-8') as readme_file:
@@ -18,7 +18,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/JMcB17/auto_timelapse_script',
-    py_modules='auto_timelapse',
+    py_modules=['auto_timelapse'],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
