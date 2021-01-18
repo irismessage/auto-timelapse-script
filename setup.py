@@ -1,5 +1,7 @@
 import setuptools
 
+import auto_timelapse
+
 
 # To run: python setup.py sdist bdist_wheel
 # To upload: python -m twine upload --sign --skip-existing (--comment COMMENT) (--repository testpypi) dist/*
@@ -10,7 +12,7 @@ with open('README.md', 'r', encoding='utf-8') as readme_file:
 
 setuptools.setup(
     name='cmpc-timelapse',
-    version='0.6.7',
+    version=auto_timelapse.__version__,
     author='Joel McBride',
     author_email='joel.mcbride1@live.com',
     description='Script for automatically downloading a list of videos, speeding them up, and concatenating them.',

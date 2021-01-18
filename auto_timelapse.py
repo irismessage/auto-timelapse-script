@@ -1,5 +1,25 @@
 #!usr/env/bin python
 
+
+"""Script for automatically downloading a list of videos, speeding them up, and concatenating them.
+
+Files:
+    vods.txt -- input list of video URL's, separated by newlines
+    downloads/ -- folder which files will be downloaded to
+
+Usage: cmpc-timelapse
+
+Options (variables at start of file, better options system to follow):
+    vods_list_file_path -- path to file with list of video URL's
+    out_folder -- folder to download videos to, must be empty unless clear_out_folder is True
+    clear_out_folder -- delete all files in out_folder
+    prefer_best_quality -- videos will be downloaded in 720p or smaller unless this is True
+    speed -- multiplier for speeding up videos
+    output_timelapse_filename -- name for the concatenated version of all the sped up videos
+    keep_timelapse_parts -- individual sped up videos are deleted unless this is True
+"""
+
+
 import re
 import os
 import sys
@@ -9,8 +29,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-# Note: don't remember to update setup.py and maybe create a new GitHub release when you bump this!
-__version__ = '0.6.7'
+__version__ = '0.6.8'
 
 
 # TODO: command-line argument support
@@ -22,25 +41,32 @@ __version__ = '0.6.7'
 # TODO: - option to keep audio in timelapse?
 # TODO: - option to turn off logging for youtube_dl and ffmpeg
 # TODO: handle vod list input through input() after running
-# TODO: upload to pypi when done :)
-# TODO: docstrings
 # TODO: option to disable multithreading or use a batch mode for large lists
+# TODO: refine function arguments, reduce use of 'constants'
 
 
 YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
 
 vods_list_file_path = 'vods.txt'
 out_folder = 'downloads'
-prefer_1080p = False
-speed = 1000
 clear_out_folder = False
-output_timelapse_filename = '_timelapse.mp4'
+prefer_best_quality = False
 # TODO: make this option work
 # keep_full_length_versions = False
+speed = 1000
+output_timelapse_filename = '_timelapse.mp4'
 keep_timelapse_parts = True
 
 
 def out_folder_empty(overwrite=clear_out_folder):
+    """Check whether the output folder is empty, and clear it if applicable.
+
+    Args:
+        overwrite -- whether or not to delete files in the folder if there are any
+    Returns True if the folder doesn't exist or is empty.
+    Returns False if the folder exists and contains files, unless overwrite is True, in which case it will
+    delete all files in the folder and return True.
+    """
     try:
         out_folder_contents = os.listdir(out_folder)
     except FileNotFoundError:
@@ -56,6 +82,13 @@ def out_folder_empty(overwrite=clear_out_folder):
 
 
 def remove_duplicates(videos):
+    """Remove duplicate items in a list and return it.
+
+    Args:
+        videos -- input list
+    Returns the list with duplicate items removed, which may be identical to the original list if there were
+    no duplicate items.
+    """
     seen = set()
     unique_videos = []
     for video in videos:
@@ -67,6 +100,14 @@ def remove_duplicates(videos):
 
 
 def vods_list_from_file(path=vods_list_file_path):
+    """Get a list of video URL's from a file.
+
+    Prints an error message and exits the program if the file is not found.
+
+    Args:
+        path -- file path to a text file of newline-separated video URL's
+    Returns a list of URL's with duplicates removed.
+    """
     try:
         with open(path, 'r') as vods_list_file:
             vods_list = vods_list_file.read().splitlines()
@@ -79,11 +120,20 @@ def vods_list_from_file(path=vods_list_file_path):
 
 
 def download(vods_list):
+    """Download videos from a list of URL's using youtube-dl, and speed them up using ffmpeg.
+
+    Downloads videos then automatically invokes the speed_up function on their filepath.
+    If an invalid URL is given, it and all URL's after it in the list will be skipped. An error message will also
+    be printed.
+
+    Args:
+        vods_list -- a list of youtube-dl compatible video URL's. May contain only one element, but must be a list
+    """
     ydl_args = {
         'outtmpl': f'/{out_folder}/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
-    if not prefer_1080p:
+    if not prefer_best_quality:
         ydl_args['format'] = 'best[height<=720]/best'
 
     try:
@@ -98,6 +148,13 @@ def download(vods_list):
 
 
 def speed_up(video_download):
+    """Speeds up a video using ffmpeg. Works as a youtube_dl progress hook.
+
+    The original video will be deleted. The speed multiplier is the 'speed' constant.
+
+    Args:
+        video_download -- dict with a 'status' key and a 'filename' key.
+    """
     if not video_download['status'] == 'finished':
         return
     filename, file_extension = os.path.splitext(video_download['filename'])
@@ -112,6 +169,13 @@ def speed_up(video_download):
 
 
 def combine_videos_in(folder=out_folder):
+    """Combine videos in a folder into a single video using the ffmpeg concatenation demuxer.
+
+    Original videos will be removed if keep_timelapse_parts is False.
+
+    Args:
+        folder -- the folder to combine videos in
+    """
     videos = os.listdir(folder)
     parts_file_path = os.path.join(folder, '_parts.txt')
 
@@ -129,6 +193,12 @@ def combine_videos_in(folder=out_folder):
 
 
 def main():
+    """Execute the script.
+
+    First calls out_folder_empty and exits if result is False after printing an error message.
+    Then uses threading to download videos got from the vod_list_from_file function, using the download function.
+    Finally combines the downloaded videos using the combine_videos_in function.
+    """
     if not out_folder_empty():
         print(f"The output folder '{out_folder}' contains files, please clear it or change the output folder.")
         sys.exit()
