@@ -43,6 +43,8 @@ __version__ = '0.6.8'
 # TODO: handle vod list input through input() after running
 # TODO: option to disable multithreading or use a batch mode for large lists
 # TODO: refine function arguments, reduce use of 'constants'
+# TODO: ffmpeg --enable-nvenc option
+# TODO: function to get list of videos from option like youtube channel, maybe with time conditions
 
 
 YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
