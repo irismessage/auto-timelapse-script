@@ -2,7 +2,7 @@ import setuptools
 
 
 # To run: python setup.py sdist bdist_wheel
-# To upload: python -m twine upload --sign --skip-existing (--repository testpypi) dist/*
+# To upload: python -m twine upload --sign --skip-existing (--comment COMMENT) (--repository testpypi) dist/*
 
 
 with open('README.md', 'r', encoding='utf-8') as readme_file:
@@ -11,7 +11,7 @@ with open('README.md', 'r', encoding='utf-8') as readme_file:
 # TODO: test distribution and put on real pypi
 setuptools.setup(
     name='cmpc-timelapse',
-    version='0.6.5',
+    version='0.6.6',
     author='Joel McBride',
     author_email='joel.mcbride1@live.com',
     description='Script for automatically downloading a list of videos, speeding them up, and concatenating them.',

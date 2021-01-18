@@ -10,7 +10,7 @@ import ffmpeg
 
 
 # Note: don't remember to update setup.py and maybe create a new GitHub release when you bump this!
-__version__ = '0.6.5'
+__version__ = '0.6.6'
 
 
 # TODO: command-line argument support
