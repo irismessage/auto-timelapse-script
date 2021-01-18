@@ -50,7 +50,7 @@ parser = argparse.ArgumentParser(description='Script for automatically downloadi
                                              'and concatenating them.')
 parser.add_argument('--version', action='version', version=__version__)
 
-parser.add_argument('urls', nargs='*', default=[])
+parser.add_argument('urls', nargs='*', default=[], dest='cmd_vods_list')
 
 parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path')
 parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest='out_folder')
@@ -212,7 +212,10 @@ def main():
         print(f"The output folder '{args.out_folder}' contains files, please clear it or change the output folder.")
         sys.exit()
 
-    vods_list = vods_list_from_file()
+    if not args.cmd_vods_list:
+        vods_list = vods_list_from_file()
+    else:
+        vods_list = args.cmd_vods_list
     print('Downloading and speeding up videos now with multithreading. You may see strange overlapping outputs.')
     with concurrent.futures.ThreadPoolExecutor() as threads:
         threads.map(download, [[vod] for vod in vods_list])

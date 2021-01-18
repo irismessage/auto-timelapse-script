@@ -27,4 +27,4 @@ cmpc-timelapse
 ```
 
 To use, create a file `vods.txt` with a list of youtube-dl compatible video URL's separated by newlines. Then, run in the same folder.    
-Has a number of options that can be modified as variables at the start of the program. Command line options support and runtime input support will be added.
+Has a number of command line options, including `-h`, `--help`. Might add runtime input support.
