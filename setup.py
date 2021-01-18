@@ -8,10 +8,9 @@ import setuptools
 with open('README.md', 'r', encoding='utf-8') as readme_file:
     long_description = readme_file.read()
 
-# TODO: test distribution and put on real pypi
 setuptools.setup(
     name='cmpc-timelapse',
-    version='0.6.6',
+    version='0.6.7',
     author='Joel McBride',
     author_email='joel.mcbride1@live.com',
     description='Script for automatically downloading a list of videos, speeding them up, and concatenating them.',
@@ -19,6 +18,11 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/JMcB17/auto_timelapse_script',
     py_modules=['auto_timelapse'],
+    entry_points={
+        'console_scripts': [
+            'cmpc-timelapse=auto_timelapse:main'
+        ]
+    },
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',

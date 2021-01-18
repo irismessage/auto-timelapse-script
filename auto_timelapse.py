@@ -10,7 +10,7 @@ import ffmpeg
 
 
 # Note: don't remember to update setup.py and maybe create a new GitHub release when you bump this!
-__version__ = '0.6.6'
+__version__ = '0.6.7'
 
 
 # TODO: command-line argument support
@@ -24,6 +24,7 @@ __version__ = '0.6.6'
 # TODO: handle vod list input through input() after running
 # TODO: upload to pypi when done :)
 # TODO: docstrings
+# TODO: option to disable multithreading or use a batch mode for large lists
 
 
 YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
