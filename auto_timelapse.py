@@ -50,11 +50,11 @@ parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest
 parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder',
                     help='delete any and all files in the output folder before starting')
 parser.add_argument('-b', '--prefer-best-quality', action='store_true', dest='prefer_best_quality',
-                    help='720p or lower will be used unless this option is selected')
+                    help='720p or lower will be used unless this option is selected, warning: may break concat')
 parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed',
                     help='multiplier for speeding up the video for ffmpeg, default: %(default)s')
 parser.add_argument('-n', '--output-timelapse-name', default='_timelapse.mp4', dest='output_timelapse_filename',
-                    help='name of final output, default: %(default)s')
+                    help='name of final output, default: %(default)s, note:should include file extension, for ffmpeg')
 parser.add_argument('-k', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts',
                     help='individual sped up videos will be deleted unless this option is selected')
 
