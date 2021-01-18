@@ -3,20 +3,11 @@
 
 """Script for automatically downloading a list of videos, speeding them up, and concatenating them.
 
-Files:
+Usage and options: see -h/--help
+
+Files (configurable):
     vods.txt -- input list of video URL's, separated by newlines
     downloads/ -- folder which files will be downloaded to
-
-Usage: cmpc-timelapse
-
-Options (variables at start of file, better options system to follow):
-    vods_list_file_path -- path to file with list of video URL's
-    out_folder -- folder to download videos to, must be empty unless clear_out_folder is True
-    clear_out_folder -- delete all files in out_folder
-    prefer_best_quality -- videos will be downloaded in 720p or smaller unless this is True
-    speed -- multiplier for speeding up videos
-    output_timelapse_filename -- name for the concatenated version of all the sped up videos
-    keep_timelapse_parts -- individual sped up videos are deleted unless this is True
 """
 
 
@@ -30,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.6.8'
+__version__ = '0.7.0'
 
 
 # TODO: command-line argument support
@@ -50,15 +41,22 @@ parser = argparse.ArgumentParser(description='Script for automatically downloadi
                                              'and concatenating them.')
 parser.add_argument('--version', action='version', version=__version__)
 
-parser.add_argument('urls', nargs='*', default=[], dest='cmd_vods_list')
+parser.add_argument('cmd_vods_list', nargs='*', default=[])
 
-parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path')
-parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest='out_folder')
-parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder')
-parser.add_argument('-b', '--prefer-best-quality', action='store_true', dest='prefer_best_quality')
-parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed')
-parser.add_argument('-n', '--output-timelapse-name', default='_timelapse.mp4', dest='output_timelapse_filename')
-parser.add_argument('-k', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts')
+parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path',
+                    help="path to file with list of video URL's, used if they are not given as arguments")
+parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest='out_folder',
+                    help="folder to download to, default: '%(default)s'")
+parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder',
+                    help='delete any and all files in the output folder before starting')
+parser.add_argument('-b', '--prefer-best-quality', action='store_true', dest='prefer_best_quality',
+                    help='720p or lower will be used unless this option is selected')
+parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed',
+                    help='multiplier for speeding up the video for ffmpeg, default: %(default)s')
+parser.add_argument('-n', '--output-timelapse-name', default='_timelapse.mp4', dest='output_timelapse_filename',
+                    help='name of final output, default: %(default)s')
+parser.add_argument('-k', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts',
+                    help='individual sped up videos will be deleted unless this option is selected')
 
 args = parser.parse_args()
 
