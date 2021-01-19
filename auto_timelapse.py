@@ -21,11 +21,10 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 
 # TODO: command-line argument support
-# TODO: - vod urls as a list of arguments
 # TODO: - option to turn off logging for youtube_dl and ffmpeg
 # TODO: handle vod list input through input() after running
 # TODO: option to disable multithreading or use a batch mode for large lists
@@ -38,10 +37,11 @@ YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
 
 # command line interface
 parser = argparse.ArgumentParser(description='Script for automatically downloading a list of videos, speeding them up, '
-                                             'and concatenating them.')
+                                             'and concatenating them.',
+                                 usage='%(prog)s [-h] [--version] [options] [video_urls ...]')
 parser.add_argument('--version', action='version', version=__version__)
 
-parser.add_argument('cmd_vods_list', nargs='*', default=[])
+parser.add_argument('video_urls', nargs='*', default=[])
 
 parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path',
                     help="path to file with list of video URL's, used if they are not given as arguments")
@@ -210,10 +210,10 @@ def main():
         print(f"The output folder '{args.out_folder}' contains files, please clear it or change the output folder.")
         sys.exit()
 
-    if not args.cmd_vods_list:
+    if not args.video_urls:
         vods_list = vods_list_from_file()
     else:
-        vods_list = args.cmd_vods_list
+        vods_list = args.video_urls
     print('Downloading and speeding up videos now with multithreading. You may see strange overlapping outputs.')
     with concurrent.futures.ThreadPoolExecutor() as threads:
         threads.map(download, [[vod] for vod in vods_list])
