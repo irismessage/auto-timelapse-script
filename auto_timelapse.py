@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.7.1'
+__version__ = '0.8.0'
 
 
 # TODO: command-line argument support
@@ -38,11 +38,13 @@ YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
 # command line interface
 parser = argparse.ArgumentParser(description='Script for automatically downloading a list of videos, speeding them up, '
                                              'and concatenating them.',
-                                 usage='%(prog)s [-h] [--version] [options] [video_urls ...]')
+                                 usage='%(prog)s [-h] [--version] [OPTIONS] [VIDEO_URLS ...]')
 parser.add_argument('--version', action='version', version=__version__)
 
 parser.add_argument('video_urls', nargs='*', default=[])
 
+parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
+                    help='show output from youtube-dl and ffmpeg')
 parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path',
                     help="path to file with list of video URL's, used if they are not given as arguments")
 parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest='out_folder',
@@ -125,7 +127,7 @@ def vods_list_from_file(path=args.vods_list_file_path):
         return vods_list
 
 
-def download(vods_list, out_folder=args.out_folder, prefer_best_quality=args.prefer_best_quality):
+def download_and_speed_up(vods_list, out_folder=args.out_folder, prefer_best_quality=args.prefer_best_quality):
     """Download videos from a list of URL's using youtube-dl, and speed them up using ffmpeg.
 
     Downloads videos then automatically invokes the speed_up function on their filepath.
@@ -136,6 +138,7 @@ def download(vods_list, out_folder=args.out_folder, prefer_best_quality=args.pre
         vods_list -- a list of youtube-dl compatible video URL's. May contain only one element, but must be a list
     """
     ydl_args = {
+        'quiet': not args.verbose,
         'outtmpl': f'/{out_folder}/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
@@ -169,6 +172,9 @@ def speed_up(video_download, speed=args.speed):
     stream = ffmpeg.input(video_download['filename'])
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
     stream = ffmpeg.output(stream, f"{filename_no_extension}-{speed}x{file_extension}")
+    # if not args.verbose:
+    #     stream = stream.global_args('-hide_banner')
+    #     # stream = stream.global_args('-loglevel', 'warning')
     ffmpeg.run(stream)
 
     os.remove(video_download['filename'])
@@ -191,6 +197,9 @@ def combine_videos_in(folder=args.out_folder,
 
     stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
     stream = ffmpeg.output(stream, os.path.join(folder, out_filename), c='copy')
+    # if not args.verbose:
+    #     stream = stream.global_args('-hide_banner')
+    #     # stream = stream.global_args('-loglevel', 'warning')
     ffmpeg.run(stream)
 
     if not keep_parts:
@@ -203,7 +212,8 @@ def main():
     """Execute the script.
 
     First calls out_folder_empty and exits if result is False after printing an error message.
-    Then uses threading to download videos got from the vod_list_from_file function, using the download function.
+    Then uses threading to download videos got from the vod_list_from_file function, using the download_and_speed_up
+    function.
     Finally combines the downloaded videos using the combine_videos_in function.
     """
     if not out_folder_empty():
@@ -216,7 +226,7 @@ def main():
         vods_list = args.video_urls
     print('Downloading and speeding up videos now with multithreading. You may see strange overlapping outputs.')
     with concurrent.futures.ThreadPoolExecutor() as threads:
-        threads.map(download, [[vod] for vod in vods_list])
+        threads.map(download_and_speed_up, [[vod] for vod in vods_list])
     print('Downloading finished, combining videos.')
     combine_videos_in(args.out_folder)
 

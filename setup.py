@@ -15,6 +15,7 @@ setuptools.setup(
     version=auto_timelapse.__version__,
     author='Joel McBride',
     author_email='joel.mcbride1@live.com',
+    license='GPLv3',
     description='Script for automatically downloading a list of videos, speeding them up, and concatenating them.',
     long_description=long_description,
     long_description_content_type='text/markdown',
