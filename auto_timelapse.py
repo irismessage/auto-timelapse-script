@@ -47,7 +47,7 @@ parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                     help='show output from youtube-dl and ffmpeg')
 parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path',
                     help="path to file with list of video URL's, used if they are not given as arguments")
-parser.add_argument('-of', '--out-folder', '--output', default='downloads', dest='out_folder',
+parser.add_argument('-o', '--out-folder', '--output', default='downloads', dest='out_folder',
                     help="folder to download to, default: '%(default)s'")
 parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder',
                     help='delete any and all files in the output folder before starting')
@@ -57,8 +57,10 @@ parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed',
                     help='multiplier for speeding up the video for ffmpeg, default: %(default)s')
 parser.add_argument('-n', '--output-timelapse-name', default='_timelapse.mp4', dest='output_timelapse_filename',
                     help='name of final output, default: %(default)s, note:should include file extension, for ffmpeg')
-parser.add_argument('-k', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts',
+parser.add_argument('-kt', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts',
                     help='individual sped up videos will be deleted unless this option is selected')
+parser.add_argument('-ko', '--keep-original-parts', action='store_true', dest='keep_original_parts',
+                    help='individual full length videos will be deleted unless this option is selected')
 
 args = parser.parse_args()
 
@@ -139,7 +141,7 @@ def download_and_speed_up(vods_list, out_folder=args.out_folder, prefer_best_qua
     """
     ydl_args = {
         'quiet': not args.verbose,
-        'outtmpl': f'/{out_folder}/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
+        'outtmpl': f'/{out_folder}/originals/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
     if not prefer_best_quality:
@@ -171,17 +173,20 @@ def speed_up(video_download, speed=args.speed):
 
     stream = ffmpeg.input(video_download['filename'])
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
-    stream = ffmpeg.output(stream, f"{filename_no_extension}-{speed}x{file_extension}")
+    stream = ffmpeg.output(stream, f"/speedup/{filename_no_extension}-{speed}x{file_extension}")
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
     ffmpeg.run(stream)
 
-    os.remove(video_download['filename'])
+    if not args.keep_original_parts:
+        os.remove(video_download['filename'])
 
 
 def combine_videos_in(folder=args.out_folder,
-                      out_filename=args.output_timelapse_filename, keep_parts=args.keep_timelapse_parts):
+                      subfolder='/speedup/',
+                      out_filename=args.output_timelapse_filename,
+                      keep_parts=args.keep_timelapse_parts,):
     """Combine videos in a folder into a single video using the ffmpeg concatenation demuxer.
 
     Original videos will be removed if keep_timelapse_parts is False.
@@ -189,7 +194,7 @@ def combine_videos_in(folder=args.out_folder,
     Args:
         folder -- the folder to combine videos in
     """
-    videos = os.listdir(folder)
+    videos = os.listdir(os.path.join(folder, subfolder))
     parts_file_path = os.path.join(folder, '_parts.txt')
 
     with open(parts_file_path, 'w', encoding='utf-8') as parts_file:
