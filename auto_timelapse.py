@@ -68,6 +68,27 @@ args = parser.parse_args()
 # keep_full_length_versions = False
 
 
+def clear_folder(out_folder, subfolders=('originals', 'speedup')):
+    """Clear files in the given folder.
+
+    Args:
+        out_folder -- folder to clear files in
+        subfolders -- folders within out_folder to also clear
+
+    Folders in out_folder that are not included in subfolders will be ignored.
+    Subfolders will be cleared but not deleted.
+    If there are folders within the given subfolders, it may raise a PermissionError.
+    """
+    for subfolder in [os.path.join(out_folder, subfolder) for subfolder in subfolders]:
+        if os.path.isdir(subfolder):
+            for file in os.listdir(subfolder):
+                os.remove(file)
+
+    for entry in os.listdir(out_folder):
+        if not os.path.isdir(entry):
+            os.remove(entry)
+
+
 def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder):
     """Check whether the output folder is empty, and clear it if applicable.
 
@@ -84,8 +105,7 @@ def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder
     else:
         if overwrite:
             print(f"Clearing downloads folder '{out_folder}'..")
-            for file in out_folder_contents:
-                os.remove(os.path.join(out_folder, file))
+            clear_folder(out_folder)
             return True
         else:
             return not out_folder_contents
