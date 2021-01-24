@@ -173,7 +173,7 @@ def speed_up(video_download, speed=args.speed):
 
     stream = ffmpeg.input(video_download['filename'])
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
-    stream = ffmpeg.output(stream, f"/speedup/{filename_no_extension}-{speed}x{file_extension}")
+    stream = ffmpeg.output(stream, f'/speedup/{filename_no_extension}-{speed}x{file_extension}', c='copy')
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
