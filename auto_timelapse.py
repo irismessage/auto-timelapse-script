@@ -82,11 +82,11 @@ def clear_folder(out_folder, subfolders=('originals', 'speedup')):
     for subfolder in [os.path.join(out_folder, subfolder) for subfolder in subfolders]:
         if os.path.isdir(subfolder):
             for file in os.listdir(subfolder):
-                os.remove(file)
+                os.remove(os.path.join(subfolder, file))
 
     for entry in os.listdir(out_folder):
         if not os.path.isdir(entry):
-            os.remove(entry)
+            os.remove(os.path.join(out_folder, entry))
 
 
 def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder):
