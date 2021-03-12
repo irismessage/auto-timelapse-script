@@ -60,8 +60,8 @@ parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed',
                     help='multiplier for speeding up the video for ffmpeg, default: %(default)s')
 parser.add_argument('-n', '--output-timelapse-name', default='_timelapse.mp4', dest='output_timelapse_filename',
                     help='name of final output, default: %(default)s, note:should include file extension, for ffmpeg')
-parser.add_argument('-kt', '--keep-timelapse-parts', action='store_true', dest='keep_timelapse_parts',
-                    help='individual sped up videos will be deleted unless this option is selected')
+parser.add_argument('-kt', '--del-timelapse-parts', action='store_false', dest='keep_timelapse_parts',
+                    help='individual sped up videos will be kept unless this option is selected')
 parser.add_argument('-ko', '--keep-original-parts', action='store_true', dest='keep_original_parts',
                     help='individual full length videos will be deleted unless this option is selected')
 
@@ -195,7 +195,7 @@ def speed_up(video_download, speed=args.speed):
 
 def combine_videos_in(
         folder=args.out_folder,
-        subfolder='/speedup/',
+        subfolder='speedup',
         out_filename=args.output_timelapse_filename,
         keep_parts=args.keep_timelapse_parts
 ):
