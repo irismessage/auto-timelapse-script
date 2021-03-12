@@ -212,7 +212,7 @@ def combine_videos_in(
     parts_file_path = folder_path / '_parts.txt'
 
     with open(parts_file_path, 'w', encoding='utf-8') as parts_file:
-        parts_file.writelines([f"file '{folder_path.joinpath(video)}'\n" for video in videos])
+        parts_file.writelines([f"file '{video}'\n" for video in videos])
 
     stream = ffmpeg.input(str(parts_file_path), format='concat', safe=0)
     stream = ffmpeg.output(stream, str(folder_path.joinpath(out_filename)), c='copy')
