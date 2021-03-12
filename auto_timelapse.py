@@ -178,10 +178,11 @@ def speed_up(video_download, speed=args.speed):
     # filename, file_extension = os.path.splitext(video_download['filename'])
     # filename_no_extension = video_download['filename'][:-len(file_extension)]
     filename = Path(video_download['filename'])
+    out_filename = Path('speedup') / filename.with_stem(filename.stem + f'-{speed}x')
 
     stream = ffmpeg.input(filename)
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
-    stream = ffmpeg.output(stream, f'/speedup/{filename.stem}-{speed}x{filename.suffix}')
+    stream = ffmpeg.output(stream, out_filename)
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
