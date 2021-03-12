@@ -161,7 +161,7 @@ def download_and_speed_up(vods_list, out_folder=args.out_folder, prefer_best_qua
         vods_list -- a list of youtube-dl compatible video URL's. May contain only one element, but must be a list
     """
     ydl_args = {
-        'quiet': not args.verbose,
+##        'quiet': not args.verbose,
         'outtmpl': f'/{out_folder}/originals/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
