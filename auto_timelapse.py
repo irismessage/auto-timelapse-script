@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.8.1'
+__version__ = '0.9.0'
 
 
 # TODO: command-line argument support
@@ -51,6 +51,9 @@ parser.add_argument('-o', '--out-folder', '--output', default='downloads', dest=
                     help="folder to download to, default: '%(default)s'")
 parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder',
                     help='delete any and all files in the output folder before starting')
+parser.add_argument('--no-clear', action='store_true', dest='no_clear',
+                    help="Don't try to clear the out folder before starting. Allows resuming downloads, "
+                    'but may mess up concatenation.')
 parser.add_argument('-b', '--prefer-best-quality', action='store_true', dest='prefer_best_quality',
                     help='720p or lower will be used unless this option is selected, warning: may break concat')
 parser.add_argument('-s', '--speed', type=int, default=1000, dest='speed',
@@ -127,7 +130,7 @@ def vods_list_from_file(path=args.vods_list_file_path):
             vods_list = vods_list_file.read().splitlines()
     except FileNotFoundError:
         print(f"List of VODs to download '{path}' not found.")
-        sys.exit()
+        sys.exit(2)
     else:
         vods_list = list(set(vods_list))
         return vods_list
@@ -230,9 +233,10 @@ def main():
     function.
     Finally combines the downloaded videos using the combine_videos_in function.
     """
-    if not out_folder_empty():
-        print(f"The output folder '{args.out_folder}' contains files, please clear it or change the output folder.")
-        sys.exit()
+    if not args.no_clear:
+        if not out_folder_empty():
+            print(f"The output folder '{args.out_folder}' contains files, please clear it or change the output folder.")
+            sys.exit(1)
 
     if not args.video_urls:
         vods_list = vods_list_from_file()
