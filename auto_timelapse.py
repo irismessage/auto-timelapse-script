@@ -238,7 +238,8 @@ def main():
     """
     if not args.no_clear:
         if not out_folder_empty():
-            print(f"The output folder '{args.out_folder}' contains files, please clear it or change the output folder.")
+            print(f"The output folder '{args.out_folder}' contains files, "
+                  'please clear it (--overwrite), change the output folder (--out-folder), or use --no-clear.')
             sys.exit(1)
 
     if not args.video_urls:
