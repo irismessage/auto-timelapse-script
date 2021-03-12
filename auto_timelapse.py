@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 
 
 # TODO: command-line argument support
