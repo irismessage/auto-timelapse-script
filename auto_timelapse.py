@@ -214,8 +214,8 @@ def combine_videos_in(
     with open(parts_file_path, 'w', encoding='utf-8') as parts_file:
         parts_file.writelines([f"file '{folder_path.joinpath(video)}'\n" for video in videos])
 
-    stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
-    stream = ffmpeg.output(stream, folder_path.joinpath(out_filename), c='copy')
+    stream = ffmpeg.input(str(parts_file_path), format='concat', safe=0)
+    stream = ffmpeg.output(stream, str(folder_path.joinpath(out_filename)), c='copy')
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
