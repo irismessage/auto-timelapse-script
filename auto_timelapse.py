@@ -24,6 +24,7 @@ import ffmpeg
 __version__ = '0.9.3'
 
 
+# TODO: ensure videos are concatenated in the order they're given
 # TODO: command-line argument support
 # TODO: - option to turn off logging for youtube_dl and ffmpeg
 # TODO: handle vod list input through input() after running
