@@ -1,4 +1,4 @@
-#!usr/bin/env python
+#!/usr/bin/env python
 
 
 """Script for automatically downloading a list of videos, speeding them up, and concatenating them.
