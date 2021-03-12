@@ -178,7 +178,7 @@ def speed_up(video_download, speed=args.speed):
     # filename, file_extension = os.path.splitext(video_download['filename'])
     # filename_no_extension = video_download['filename'][:-len(file_extension)]
     filename = Path(video_download['filename'])
-    out_name = filename.with_stem(filename.stem + f'-{speed}x').name
+    out_name = filename.with_stem(filename.stem.replace("'", '') + f'-{speed}x').name
     out_filename = filename.parents[1] / 'speedup' / out_name
 
     stream = ffmpeg.input(str(filename))
