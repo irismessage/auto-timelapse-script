@@ -16,6 +16,7 @@ import os
 import sys
 import argparse
 import concurrent.futures
+from pathlib import Path
 
 import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
@@ -79,14 +80,16 @@ def clear_folder(out_folder, subfolders=('originals', 'speedup')):
     Subfolders will be cleared but not deleted.
     If there are folders within the given subfolders, it may raise a PermissionError.
     """
-    for subfolder in [os.path.join(out_folder, subfolder) for subfolder in subfolders]:
-        if os.path.isdir(subfolder):
-            for file in os.listdir(subfolder):
-                os.remove(os.path.join(subfolder, file))
+    for subfolder in subfolders:
+        subfolder = Path(out_folder) / subfolder
+        if subfolder.is_dir():
+            for file in subfolder.iterdir():
+                # delete file
+                file.unlink()
 
-    for entry in os.listdir(out_folder):
-        if not os.path.isdir(entry):
-            os.remove(os.path.join(out_folder, entry))
+    for entry in Path(out_folder).iterdir():
+        if not entry.is_dir():
+            entry.unlink()
 
 
 def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder):
@@ -99,7 +102,7 @@ def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder
     delete all files in the folder and return True.
     """
     try:
-        out_folder_contents = os.listdir(out_folder)
+        out_folder_contents = Path(out_folder).iterdir()
     except FileNotFoundError:
         return True
     else:
@@ -108,26 +111,7 @@ def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder
             clear_folder(out_folder)
             return True
         else:
-##            out_folder_contents = filter(os.is_file, out_folder_contents)
             return not out_folder_contents
-
-
-def remove_duplicates(videos):
-    """Remove duplicate items in a list and return it.
-
-    Args:
-        videos -- input list
-    Returns the list with duplicate items removed, which may be identical to the original list if there were
-    no duplicate items.
-    """
-    seen = set()
-    unique_videos = []
-    for video in videos:
-        if video not in seen:
-            unique_videos.append(video)
-            seen.add(video)
-
-    return unique_videos
 
 
 def vods_list_from_file(path=args.vods_list_file_path):
@@ -146,7 +130,7 @@ def vods_list_from_file(path=args.vods_list_file_path):
         print(f"List of VODs to download '{path}' not found.")
         sys.exit()
     else:
-        vods_list = remove_duplicates(vods_list)
+        vods_list = list(set(vods_list))
         return vods_list
 
 
@@ -161,7 +145,7 @@ def download_and_speed_up(vods_list, out_folder=args.out_folder, prefer_best_qua
         vods_list -- a list of youtube-dl compatible video URL's. May contain only one element, but must be a list
     """
     ydl_args = {
-##        'quiet': not args.verbose,
+        # 'quiet': not args.verbose,
         'outtmpl': f'/{out_folder}/originals/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
@@ -189,25 +173,28 @@ def speed_up(video_download, speed=args.speed):
     """
     if not video_download['status'] == 'finished':
         return
-    filename, file_extension = os.path.splitext(video_download['filename'])
-    filename_no_extension = video_download['filename'][:-len(file_extension)]
+    # filename, file_extension = os.path.splitext(video_download['filename'])
+    # filename_no_extension = video_download['filename'][:-len(file_extension)]
+    filename = Path(video_download['filename'])
 
-    stream = ffmpeg.input(video_download['filename'])
+    stream = ffmpeg.input(filename)
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
-    stream = ffmpeg.output(stream, f'/speedup/{filename_no_extension}-{speed}x{file_extension}')
+    stream = ffmpeg.output(stream, f'/speedup/{filename.stem}-{speed}x{filename.suffix}')
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
     ffmpeg.run(stream)
 
     if not args.keep_original_parts:
-        os.remove(video_download['filename'])
+        filename.unlink()
 
 
-def combine_videos_in(folder=args.out_folder,
-                      subfolder='/speedup/',
-                      out_filename=args.output_timelapse_filename,
-                      keep_parts=args.keep_timelapse_parts,):
+def combine_videos_in(
+        folder=args.out_folder,
+        subfolder='/speedup/',
+        out_filename=args.output_timelapse_filename,
+        keep_parts=args.keep_timelapse_parts
+):
     """Combine videos in a folder into a single video using the ffmpeg concatenation demuxer.
 
     Original videos will be removed if keep_timelapse_parts is False.
@@ -215,23 +202,25 @@ def combine_videos_in(folder=args.out_folder,
     Args:
         folder -- the folder to combine videos in
     """
-    videos = os.listdir(os.path.join(folder, subfolder))
-    parts_file_path = os.path.join(folder, '_parts.txt')
+    folder_path = Path(folder)
+    subfolder_path = folder_path / subfolder
+    videos = subfolder_path.iterdir()
+    parts_file_path = folder_path / '_parts.txt'
 
     with open(parts_file_path, 'w', encoding='utf-8') as parts_file:
-        parts_file.writelines([f"file '{os.path.join(folder, video)}'\n" for video in videos])
+        parts_file.writelines([f"file '{folder_path.joinpath(video)}'\n" for video in videos])
 
     stream = ffmpeg.input(parts_file_path, format='concat', safe=0)
-    stream = ffmpeg.output(stream, os.path.join(folder, out_filename), c='copy')
+    stream = ffmpeg.output(stream, folder_path.joinpath(out_filename), c='copy')
     # if not args.verbose:
     #     stream = stream.global_args('-hide_banner')
     #     # stream = stream.global_args('-loglevel', 'warning')
     ffmpeg.run(stream)
 
     if not keep_parts:
-        os.remove(parts_file_path)
+        parts_file_path.unlink()
         for video in videos:
-            os.remove(os.path.join(folder, video))
+            folder_path.joinpath(video).unlink()
 
 
 def main():
