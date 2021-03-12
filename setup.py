@@ -3,8 +3,9 @@ import setuptools
 import auto_timelapse
 
 
-# To run: python setup.py sdist bdist_wheel
-# To upload: python -m twine upload --sign --skip-existing (--comment COMMENT) (--repository testpypi) dist/*
+# To run: py setup.py sdist bdist_wheel
+# To upload: py -m twine upload --sign --skip-existing dist/*
+#            py -m twine upload --sign --skip-existing (--comment COMMENT) (--repository testpypi) dist/*
 
 
 with open('README.md', 'r', encoding='utf-8') as readme_file:
