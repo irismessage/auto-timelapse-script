@@ -12,7 +12,6 @@ Files (configurable):
 
 
 import re
-import os
 import sys
 import argparse
 import concurrent.futures
@@ -22,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.8.0'
+__version__ = '0.8.1'
 
 
 # TODO: command-line argument support
