@@ -108,6 +108,7 @@ def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder
             clear_folder(out_folder)
             return True
         else:
+            out_folder_contents = filter(os.is_file, out_folder_contents)
             return not out_folder_contents
 
 
