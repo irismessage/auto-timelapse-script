@@ -5,6 +5,8 @@ Uses multithreading with youtube_dl and ffmpeg-python to download_and_speed_up a
 
 Made for https://cmpc.live
 
+PyPI: https://pypi.org/project/cmpc-timelapse/
+
 
 ## Installation
 
