@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.9.4'
+__version__ = '0.9.5'
 
 
 # TODO: ensure videos are concatenated in the order they're given
@@ -47,7 +47,8 @@ parser.add_argument('video_urls', nargs='*', default=[])
 parser.add_argument('-v', '--verbose', action='store_true', dest='verbose',
                     help='show output from youtube-dl and ffmpeg')
 parser.add_argument('-f', '--file', default='vods.txt', dest='vods_list_file_path',
-                    help="path to file with list of video URL's, used if they are not given as arguments")
+                    help="path to file with list of video URL's, used if they are not given as arguments, default: "
+                    "'%(default)s'")
 parser.add_argument('-o', '--out-folder', '--output', default='downloads', dest='out_folder',
                     help="folder to download to, default: '%(default)s'")
 parser.add_argument('--overwrite', action='store_true', dest='clear_out_folder',
