@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.9.3'
+__version__ = '0.9.4'
 
 
 # TODO: ensure videos are concatenated in the order they're given
@@ -105,7 +105,7 @@ def out_folder_empty(out_folder=args.out_folder, overwrite=args.clear_out_folder
     delete all files in the folder and return True.
     """
     try:
-        out_folder_contents = Path(out_folder).iterdir()
+        out_folder_contents = list(Path(out_folder).iterdir())
     except FileNotFoundError:
         return True
     else:
