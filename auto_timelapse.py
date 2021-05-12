@@ -21,7 +21,7 @@ import youtube_dl as youtube_yl  # youtube yownloader
 import ffmpeg
 
 
-__version__ = '0.9.5'
+__version__ = '0.9.6'
 
 
 # TODO: ensure videos are concatenated in the order they're given
@@ -178,7 +178,9 @@ def speed_up(video_download, speed=args.speed):
     # filename_no_extension = video_download['filename'][:-len(file_extension)]
     filename = Path(video_download['filename'])
     out_name = filename.with_stem(filename.stem.replace("'", '') + f'-{speed}x').name
-    out_filename = filename.parents[1] / 'speedup' / out_name
+    speedup_folder = filename.parents[1] / 'speedup'
+    speedup_folder.mkdir(exist_ok=True)
+    out_filename = speedup_folder / out_name
 
     stream = ffmpeg.input(str(filename))
     stream = ffmpeg.setpts(stream, f'(1/{speed})*PTS')
