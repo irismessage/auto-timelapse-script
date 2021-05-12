@@ -33,9 +33,6 @@ __version__ = '0.9.5'
 # TODO: function to get list of videos from option like youtube channel, maybe with time conditions
 
 
-YOUTUBE_DL_DEFAULT_OUTTMPL = '%(title)s-%(id)s.%(ext)s'
-
-
 # command line interface
 parser = argparse.ArgumentParser(description='Script for automatically downloading a list of videos, speeding them up, '
                                              'and concatenating them.',
@@ -150,7 +147,7 @@ def download_and_speed_up(vods_list, out_folder=args.out_folder, prefer_best_qua
     """
     ydl_args = {
         # 'quiet': not args.verbose,
-        'outtmpl': f'/{out_folder}/originals/{YOUTUBE_DL_DEFAULT_OUTTMPL}',
+        'outtmpl': f'/{out_folder}/originals/{youtube_yl.DEFAULT_OUTTMPL}',
         'progress_hooks': [speed_up],
     }
     if not prefer_best_quality:
